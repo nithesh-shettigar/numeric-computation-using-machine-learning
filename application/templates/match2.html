@@ -1,0 +1,616 @@
+
+{% load static %}
+
+<html>
+
+<head>
+
+<script src="{% static 'js/opencv.js' %}"></script>
+</head>
+<body>
+
+
+    <img src="{% static 'files/solution3.jpg' %}" height="100" width="200" id="math"></img>
+
+    <img src="{% static 'files/plus2.jpg' %}" style="display:none;" height="100" width="200" id="plus"></img>
+
+
+
+    <img src="{% static 'files/division2.jpg' %}" style="display:none;" height="100" width="200" id="division"></img>
+
+
+
+ 
+  <img src="{% static 'files/white.jpg' %}" style="display:none;" height="100" width="200" id="multiplication"></img>
+
+
+
+    <canvas id="mathoutput"></canvas>
+
+    <canvas id="plusoutput"></canvas>
+
+
+    <canvas id="divisionoutput"></canvas>
+    <canvas id="multiplicationoutput"></canvas>
+<canvas id="mathoutput2"></canvas>
+
+</body>
+<script>
+ let temp = new cv.MatVector();
+    let identifiedcharacters=[];
+let poly1 = new cv.MatVector();
+let realpoly1 = [];
+let poly2 = new cv.MatVector();
+let poly3 = new cv.MatVector();
+let poly4 = new cv.MatVector();
+let realpoly2 = new cv.MatVector();
+let smallestindex = 0;
+let math=cv.imread('math');
+let plus = cv.imread('plus');
+let multiplication = cv.imread('multiplication');
+let division = cv.imread('division');
+let plusduplicate = cv.imread('plus');
+let multiplicationduplicate=cv.imread('multiplication');
+let divisionduplicate=cv.imread('division');
+
+
+let contours1 = new cv.MatVector();
+let contours2 = new cv.MatVector();
+let contours3 = new cv.MatVector();
+let contours4 = new cv.MatVector();
+
+
+
+
+
+let hierarchy1 = new cv.Mat();
+let hierarchy2 = new cv.Mat();
+let hierarchy3 = new cv.Mat();
+let hierarchy4 = new cv.Mat();
+
+
+
+
+
+let out1 =new cv.Mat();
+let out2 = new cv.Mat();
+let out3 =new cv.Mat();
+let out4 =new cv.Mat();
+
+
+
+
+
+
+
+
+
+let mathduplicate=cv.imread('math');
+
+
+
+cv.cvtColor(math, math, cv.COLOR_RGBA2GRAY, 0);
+cv.cvtColor(plus,plus, cv.COLOR_RGBA2GRAY, 0);
+cv.cvtColor(multiplication,multiplication, cv.COLOR_RGBA2GRAY, 0);
+cv.cvtColor(division, division, cv.COLOR_RGBA2GRAY, 0);
+
+
+
+
+
+
+cv.threshold(math, math, 120, 200, cv.THRESH_BINARY);
+cv.threshold(plus, plus, 120, 200, cv.THRESH_BINARY);
+cv.threshold(multiplication, multiplication, 120, 200, cv.THRESH_BINARY);
+cv.threshold(division,division, 120, 200, cv.THRESH_BINARY);
+
+
+
+ // You can try more different parameters
+
+
+
+
+cv.findContours(math, contours1, hierarchy1, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+cv.findContours(plus, contours2, hierarchy2, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+cv.findContours(multiplication, contours3, hierarchy3, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+cv.findContours(division, contours4, hierarchy4, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+
+
+
+
+
+
+
+// You can try more different parameters
+
+
+    
+
+console.log("contours 1 sizea ", contours1.size());
+console.log("plus sizea ", contours2.size());
+console.log("multiplication sizea ", contours3.size());
+console.log("division sizea ", contours4.size());
+
+
+
+for (let i = 0; i < contours1.size(); ++i)
+{
+  //  console.log("contours", contours1.get(i));
+	let approx = new cv.Mat();
+
+    
+	let cnt = contours1.get(i);
+    
+    	cv.approxPolyDP(cnt, approx, 0, true);
+	//console.log(approx.size());
+	//if(approx.size().height>20)
+	//{
+ 		poly1.push_back(approx);
+	//}
+	cnt.delete(); approx.delete();
+
+
+
+}
+
+
+
+
+
+
+for (let i = 0; i < contours2.size(); ++i)
+{
+	
+	let approx = new cv.Mat();
+
+    
+	let cnt = contours2.get(i);
+        
+    	cv.approxPolyDP(cnt, approx, 0, true);
+	//console.log(approx.size());
+	//if(approx.size().height>20)
+	//{
+ 		poly2.push_back(approx);
+	//}
+	cnt.delete(); approx.delete();
+}
+
+
+
+
+
+
+for (let i = 0; i < contours3.size() ; ++i) {
+
+    let approx = new cv.Mat();
+
+
+    let cnt = contours3.get(i);
+
+    cv.approxPolyDP(cnt, approx, 0, true);
+    //console.log(approx.size());
+    //if(approx.size().height>20)
+    //{
+    poly3.push_back(approx);
+    //}
+    cnt.delete(); approx.delete();
+}
+
+
+
+
+
+
+
+for (let i = 0; i < contours4.size() ; ++i) {
+
+    let approx = new cv.Mat();
+
+
+    let cnt = contours4.get(i);
+
+    cv.approxPolyDP(cnt, approx, 0, true);
+    //console.log(approx.size());
+    //if(approx.size().height>20)
+    //{
+    poly4.push_back(approx);
+    //}
+    cnt.delete(); approx.delete();
+}
+
+
+
+
+
+
+
+
+
+for (let i = 0; i < poly2.size() ; i++) {
+
+
+    let mask = cv.Mat.zeros(plus.rows, plus.cols, cv.CV_8UC3);
+
+
+
+
+    //	cv.drawContours(mask, poly, i, color, 1, cv.LINE_8, hierarchy, 0);
+
+
+    //cv.drawContours(src, poly, i, color, 0, cv.LINE_8, hierarchy, 0);
+
+
+
+
+
+    //console.log(approx.size().height); 
+    //console.log("poly",poly.get(i).size().height());
+    let rect = cv.boundingRect(poly2.get(i));
+    //console.log("boundiing rect",rect.x, rect.y,rect.x + rect.width, rect.y + rect.height);
+
+    //let out =new cv.Mat();
+    //console.log("i=",i);
+    let color = new cv.Scalar(200, 255, 10);
+
+    //rect.x=rect.x-6;rect.y=rect.y-6;rect.width=rect.width+10;rect.height=rect.height+12;
+
+    let point1 = new cv.Point(rect.x, rect.y);
+    let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
+
+    //console.log("plus=",rect.width,rect.height);
+    cv.rectangle(plusduplicate, point1, point2, color, 2, cv.LINE_AA, 0);
+
+
+    out2 = plusduplicate.roi(rect);
+    let dsize = new cv.Size(70, 100);
+    cv.resize(out2, out2, dsize, 0, 0, cv.INTER_AREA);
+
+    //cv.cvtColor(out2, out2, cv.COLOR_RGBA2GRAY, 0);
+    cv.threshold(out2, out2, 120, 255, cv.THRESH_BINARY);
+    console.log("out", out2.cols);
+    cv.imshow("plusoutput", out2)
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+for (let i = 0; i < poly3.size() ; i++) {
+
+
+    let mask = cv.Mat.zeros(multiplication.rows, multiplication.cols, cv.CV_8UC3);
+
+
+
+
+    //	cv.drawContours(mask, poly, i, color, 1, cv.LINE_8, hierarchy, 0);
+
+
+    //cv.drawContours(src, poly, i, color, 0, cv.LINE_8, hierarchy, 0);
+
+
+
+
+
+    //console.log(approx.size().height); 
+    //console.log("poly",poly.get(i).size().height());
+    let rect = cv.boundingRect(poly3.get(i));
+    //console.log("boundiing rect",rect.x, rect.y,rect.x + rect.width, rect.y + rect.height);
+
+    //let out =new cv.Mat();
+    //console.log("i=",i);
+    let color = new cv.Scalar(200, 255, 10);
+
+    //rect.x=rect.x-6;rect.y=rect.y-6;rect.width=rect.width+10;rect.height=rect.height+12;
+
+    let point1 = new cv.Point(rect.x, rect.y);
+    let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
+
+    //console.log("plus=",rect.width,rect.height);
+    cv.rectangle(multiplicationduplicate, point1, point2, color, 2, cv.LINE_AA, 0);
+
+
+    out3 = multiplicationduplicate.roi(rect);
+    let dsize = new cv.Size(70, 100);
+    cv.resize(out3, out3, dsize, 0, 0, cv.INTER_AREA);
+
+    //cv.cvtColor(out2, out2, cv.COLOR_RGBA2GRAY, 0);
+    cv.threshold(out3, out3, 120, 255, cv.THRESH_BINARY);
+    console.log("out", out3.cols);
+    cv.imshow("multiplicationoutput", out3)
+
+
+}
+
+
+
+
+
+
+
+
+
+
+for (let i = 0; i < poly4.size() ; i++) {
+
+
+    let mask = cv.Mat.zeros(division.rows, division.cols, cv.CV_8UC3);
+
+
+
+
+    //	cv.drawContours(mask, poly, i, color, 1, cv.LINE_8, hierarchy, 0);
+
+
+    //cv.drawContours(src, poly, i, color, 0, cv.LINE_8, hierarchy, 0);
+
+
+
+
+
+    //console.log(approx.size().height); 
+    //console.log("poly",poly.get(i).size().height());
+    let rect = cv.boundingRect(poly4.get(i));
+    //console.log("boundiing rect",rect.x, rect.y,rect.x + rect.width, rect.y + rect.height);
+
+    //let out =new cv.Mat();
+    //console.log("i=",i);
+    let color = new cv.Scalar(200, 255, 10);
+
+    //rect.x=rect.x-6;rect.y=rect.y-6;rect.width=rect.width+10;rect.height=rect.height+12;
+
+    let point1 = new cv.Point(rect.x, rect.y);
+    let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
+
+    //console.log("plus=",rect.width,rect.height);
+    cv.rectangle(divisionduplicate, point1, point2, color, 2, cv.LINE_AA, 0);
+
+
+    out4 = divisionduplicate.roi(rect);
+    let dsize = new cv.Size(70, 100);
+    cv.resize(out4, out4, dsize, 0, 0, cv.INTER_AREA);
+
+    //cv.cvtColor(out2, out2, cv.COLOR_RGBA2GRAY, 0);
+    cv.threshold(out4, out4, 120, 255, cv.THRESH_BINARY);
+    console.log("out", out4.cols);
+    cv.imshow("divisionoutput", out4)
+
+
+}
+
+
+let plusdemochar = cv.imread("plusoutput");
+let multiplicationdemochar = cv.imread("multiplicationoutput");
+let divisiondemochar = cv.imread("divisionoutput");
+
+
+cv.cvtColor(plusdemochar, plusdemochar, cv.COLOR_RGBA2GRAY, 0);
+cv.cvtColor(multiplicationdemochar, multiplicationdemochar, cv.COLOR_RGBA2GRAY, 0);
+cv.cvtColor(divisiondemochar, divisiondemochar, cv.COLOR_RGBA2GRAY, 0);
+
+
+    
+let pluscontourscompare = new cv.MatVector();
+let plushierarchycompare = new cv.Mat();
+let multiplicationcontourscompare = new cv.MatVector();
+let multiplicationhierarchycompare = new cv.Mat();
+let divisioncontourscompare = new cv.MatVector();
+let divisionhierarchycompare = new cv.Mat();
+
+
+
+cv.findContours(plusdemochar, pluscontourscompare, plushierarchycompare, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+//console.log("plus char contours size ",pluscontourscompare.size());
+
+
+cv.findContours(multiplicationdemochar, multiplicationcontourscompare,multiplicationhierarchycompare, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+//console.log("multiplication char contours size ", multiplicationcontourscompare.size());
+
+
+cv.findContours(divisiondemochar, divisioncontourscompare, divisionhierarchycompare, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+//console.log("division char contours size ", divisioncontourscompare.size());
+
+
+    //console.log("symbol contours suze char ", contourssymbol1.size());
+
+let plushull = new cv.Mat();
+let plusdefect = new cv.Mat();
+    
+let multiplicationhull = new cv.Mat();
+let multiplicationdefect = new cv.Mat();
+
+let divisionhull = new cv.Mat();
+let divisiondefect = new cv.Mat();
+
+
+    
+
+
+
+cv.convexHull(multiplicationcontourscompare.get(0), multiplicationhull, false, false);
+cv.convexityDefects(multiplicationcontourscompare.get(0), multiplicationhull, multiplicationdefect);
+
+
+//console.log("multiplication defects ", multiplicationdefect.rows);
+
+
+
+
+
+cv.convexHull(divisioncontourscompare.get(0), divisionhull, false, false);
+cv.convexityDefects(divisioncontourscompare.get(0), divisionhull, divisiondefect);
+
+
+//console.log("division defects ", divisiondefect.rows);
+
+
+    
+
+
+    
+let plusstart = new cv.Point(pluscontourscompare.get(0).data32S[plusdefect.data32S[0 * 4] * 2],
+                     pluscontourscompare.get(0).data32S[plusdefect.data32S[0 * 4] * 2 + 1]);
+
+    
+let multiplicationstart = new cv.Point(multiplicationcontourscompare.get(0).data32S[multiplicationdefect.data32S[0 * 4] * 2],
+                     multiplicationcontourscompare.get(0).data32S[multiplicationdefect.data32S[0 * 4] * 2 + 1]);
+
+    
+let divisionstart = new cv.Point(divisioncontourscompare.get(0).data32S[divisiondefect.data32S[0 * 4] * 2],
+                     divisioncontourscompare.get(0).data32S[divisiondefect.data32S[0 * 4] * 2 + 1]);
+
+
+
+for(let i=0;i<poly1.size();i++)
+{
+
+
+	let mask =cv.Mat.zeros(math.rows, math.cols, cv.CV_8UC3);
+
+	
+
+
+//	cv.drawContours(mask, poly, i, color, 1, cv.LINE_8, hierarchy, 0);
+
+
+	//cv.drawContours(src, poly, i, color, 0, cv.LINE_8, hierarchy, 0);
+
+
+
+
+
+    //console.log(approx.size().height); 
+    //console.log("poly",poly.get(i).size().height());
+let rect=cv.boundingRect(poly1.get(i));
+//console.log("boundiing rect",rect.x, rect.y,rect.x + rect.width, rect.y + rect.height);
+
+//let out =new cv.Mat();
+
+let color = new cv.Scalar(255,0,0);
+
+//rect.x=rect.x-6;rect.y=rect.y-6;rect.width=rect.width+10;rect.height=rect.height+12;
+//console.log("rect width",rect.width);
+
+if(rect.width>10)
+
+{
+
+
+
+
+let point1 = new cv.Point(rect.x, rect.y);
+let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
+
+
+cv.rectangle(mathduplicate, point1, point2, color, 2, cv.LINE_AA, 0);
+
+
+
+
+
+out1=mathduplicate.roi(rect);
+    //console.log("out",out.cols);
+realpoly1.push(poly1.get(i).data[0]);
+//console.log("realpoly pushed");
+cv.threshold(out1, out1, 120, 255, cv.THRESH_BINARY);
+cv.imshow("mathoutput", out1);
+
+
+
+
+let dsize=new cv.Size(70,100);
+cv.resize(out1,out1,dsize,0,0,cv.INTER_AREA);
+for(let r=0;r<out1.rows;r++)
+{
+for(let c=0;c<out1.cols;c++)
+{
+if(out1.ucharPtr(r,c)[0]>250) out1.ucharPtr(r, c)[0] = 255;
+	else out1.ucharPtr(r, c)[0] = 0;
+    if(out1.ucharPtr(r,c)[1]>100)out1.ucharPtr(r, c)[1] = 255;   
+	else out1.ucharPtr(r, c)[1] = 0;
+		 if(out1.ucharPtr(r,c)[2]>100)out1.ucharPtr(r, c)[2] = 255;   
+	else out1.ucharPtr(r, c)[2] = 0;
+
+}
+}
+
+
+
+let demochar = cv.imread("mathoutput");
+cv.cvtColor(demochar, demochar, cv.COLOR_RGBA2GRAY, 0);
+
+
+
+let contourssymbol1 = new cv.MatVector();
+let hierarchysymbol1 = new cv.Mat();
+
+
+    // You can try more different parameters
+cv.findContours(demochar, contourssymbol1, hierarchysymbol1, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+console.log("contours symbol 1 size",contourssymbol1.size());
+//console.log("demo char ", contourssymbol1.size());
+
+//console.log("after ",conto);
+
+
+let characterhull = new cv.Mat();
+let characterdefect = new cv.Mat();
+
+
+cv.convexHull(contourssymbol1.get(0), characterhull, false, false);
+cv.convexityDefects(contourssymbol1.get(0), characterhull, characterdefect);
+//console.log("character defects  ",characterdefect.rows," i ",i );
+let resultmultiplication = cv.matchShapes(contourssymbol1.get(0), multiplicationcontourscompare.get(0), 1, 0);
+
+console.log("result multiplication ",resultmultiplication);
+
+console.log("data[0]=",poly1.get(i).data[0]);
+
+
+//if(resultmultiplication<0.05)
+if(poly1.get(i).data[0]==32)
+cv.imshow("mathoutput2",out1)
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
